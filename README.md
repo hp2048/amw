@@ -2,4 +2,4 @@ This repository along with Wiki pages contains information, scripts, discussion 
 
 Run the albacore and poretools on a tar.gz file as follows:
 
-qsub -v dataid=mytestdata,inputfile=testinputfile.tar.gz,outputdir=/path/to/output/directory albacore_poretools.sh
+`qsub -P yourNCIprojectID -o /directory/path/for/stdout-err/files/ -v dataid=mytestdata,inputfile=testinputfile.tar.gz,outputdir=/path/to/output/directory albacore_poretools.sh`
