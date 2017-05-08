@@ -1,12 +1,10 @@
 #!/bin/bash
-#PBS -P te53
 #PBS -q express
 #PBS -l walltime=04:00:00
 #PBS -l mem=30000MB
 #PBS -l ncpus=16
 #PBS -N basecaller
 #PBS -j oe
-#PBS -o /short/te53/logs/
 #PBS -l jobfs=300GB
 
 execute_command () {
