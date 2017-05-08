@@ -20,19 +20,19 @@ cd $inputdir_local
 tar xzf $PBS_JOBFS/`basename $inputfile`
 cd
 
-module load python3/3.5.2 albacore/0.8.4
+module load albacore/1.1.0
 read_fast5_basecaller.py \
 -i $inputdir_local/ \
 -t $threads \
 -s $PBS_JOBFS/ \
 -c FLO-MIN106_LSK108_linear.cfg
-module unload python3/3.5.2 albacore/0.8.4
+module unload albacore/1.1.0
 
 
-module load python/2.7.11 python/2.7.11-matplotlib poretools/0.6.0
+module load poretools/0.6.0
 poretools fasta $PBS_JOBFS/workspace/ >$PBS_JOBFS/$dataid.fasta
 poretools fastq $PBS_JOBFS/workspace/ >$PBS_JOBFS/$dataid.fastq
-module unload python/2.7.11 python/2.7.11-matplotlib poretools/0.6.0
+module poretools/0.6.0
 
 module load blast/2.2.28+
 blastn -out $PBS_JOBFS/$dataid.blastn -db $PBS_JOBFS/`basename $reference` -query $PBS_JOBFS/$dataid.fasta -evalue 1e-6 -dust no -soft_masking false -outfmt '6 std qlen'
