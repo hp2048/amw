@@ -1,0 +1,1 @@
+This repository along with Wiki pages contains information, scripts, discussion regarding the processing of MinION datasets using Raijin resources.
