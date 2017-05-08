@@ -9,7 +9,6 @@
 #PBS -o /short/te53/logs/
 #PBS -l jobfs=300GB
 
-set -x
 execute_command () {
 	command=("${!1}")
 	taskname="$2"
@@ -56,37 +55,20 @@ cd $inputdir_local
 tar xzf $PBS_JOBFS/`basename $inputfile`
 cd
 
-module load python3/3.5.2 albacore/0.8.4
+module load albacore/1.1.0
 command=(read_fast5_basecaller.py -i $inputdir_local/ -t $threads -s $PBS_JOBFS/ -c FLO-MIN106_LSK108_linear.cfg)
 execute_command command[@] $dataid.albacore $outputdir/$dataid.albacore.done 1
-module unload python3/3.5.2 albacore/0.8.4
+module unload albacore/1.1.0
 
-module load python/2.7.11 python/2.7.11-matplotlib poretools/0.6.0
+module load poretools/0.6.0
 command=(poretools fasta $PBS_JOBFS/workspace/)
 execute_command command[@] $dataid.poretoolsfasta $outputdir/$dataid.poretoolsfasta.done 1 "$PBS_JOBFS/$dataid.fasta"
 command=(poretools fastq $PBS_JOBFS/workspace/)
 execute_command command[@] $dataid.poretoolsfastq $outputdir/$dataid.poretoolsfastq.done 1 "$PBS_JOBFS/$dataid.fastq"
 command=(poretools combine -o $outputdir/$dataid.tar.gz $PBS_JOBFS/workspace/)
 execute_command command[@] $dataid.poretoolscombine $outputdir/$dataid.poretoolscombine.done 1
-module unload python/2.7.11 python/2.7.11-matplotlib poretools/0.6.0
-
-module load blast/2.2.28+
-
-command=(blastn -out "$PBS_JOBFS/$dataid.blastn" -db "$PBS_JOBFS"/`basename $reference` -query "$PBS_JOBFS/$dataid.fasta" -evalue 1e-6 -max_target_seqs 5 -max_hsps_per_subject 5 -outfmt "6 std qlen")
-execute_command command[@] $dataid.blastn $outputdir/$dataid.blastn.done 1
-
-module unload blast/2.2.28+
-
-module load utilities
-command=(pigz --force --best --processes $threads "$PBS_JOBFS/$dataid.fasta")
-execute_command command[@] $dataid.fastazip $outputdir/$dataid.fastazip.done 1
-
-command=(pigz --force --best --processes $threads "$PBS_JOBFS/$dataid.fastq")
-execute_command command[@] $dataid.fastqzip $outputdir/$dataid.fastqzip.done 1
-
-module unload utilities
+module unload poretools/0.6.0
 
 ###transfer required files back
-rsync -a $PBS_JOBFS/$dataid.blastn $outputdir/
-rsync -a $PBS_JOBFS/$dataid.fasta.gz $outputdir/
-rsync -a $PBS_JOBFS/$dataid.fastq.gz $outputdir/
+rsync -a $PBS_JOBFS/$dataid.fasta $outputdir/
+rsync -a $PBS_JOBFS/$dataid.fastq $outputdir/
