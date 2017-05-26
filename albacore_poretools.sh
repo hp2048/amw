@@ -1,12 +1,6 @@
 #!/bin/bash
-#PBS -q express
-#PBS -l walltime=04:00:00
-#PBS -l mem=30000MB
-#PBS -l ncpus=16
-#PBS -N basecaller
-#PBS -j oe
-#PBS -l jobfs=300GB
 
+set -x
 execute_command () {
 	command=("${!1}")
 	taskname="$2"
@@ -17,7 +11,7 @@ execute_command () {
 	JOBID=$PBS_JOBID
 	###alter this to suit the job scheduler
 
-	if [ "$force" -eq 1 ] || [ ! -e $donefile ] || [ ! -s $donefile ] || [ "`tail -n1 $donefile | cut -f3 -d','`" != " EXIT_STATUS: 0" ]
+	if [ "$force" -eq 1 ] || [ ! -e $donefile ] || [ ! -s $donefile ] || [ "`tail -n1 $donefile | cut -f3 -d','`" != " EXIT_STATUS:0" ]
 	then
 		echo COMMAND: "${command[@]}" >> $donefile
 		if [ -z "$outputfile" ]
@@ -42,31 +36,29 @@ execute_command () {
 	fi
 }
 
-threads=16
-inputdir_local=$PBS_JOBFS/$dataid
+##copy files to local disc
+command=(rsync -a $genome $inputbam $probebed $targetbed $PBS_JOBFS/)
+execute_command command[@] $dataid.n2l $PBS_JOBFS/$dataid.n2l.done 1
 
-rsync -a $reference* $PBS_JOBFS/
-rsync -a $inputfile $PBS_JOBFS/
+##run bedcoverage on probe set
+module load bedtools/2.26.0
 
-mkdir -p $inputdir_local
-cd $inputdir_local
-tar xzf $PBS_JOBFS/`basename $inputfile`
-cd
+command=(bedtools coverage $PBS_JOBFS/`basename $genome` -f 0.5 -counts -sorted -a $PBS_JOBFS/`basename $probebed` -b $PBS_JOBFS/`basename $inputbam`)
+execute_command command[@] $dataid.probecov $outputdir/$dataid.probecov.done 0 $PBS_JOBFS/$dataid.probecov.txt
 
-module load albacore/1.1.0
-command=(read_fast5_basecaller.py -i $inputdir_local/ -t $threads -s $PBS_JOBFS/ -c FLO-MIN106_LSK108_linear.cfg)
-execute_command command[@] $dataid.albacore $outputdir/$dataid.albacore.done 1
-module unload albacore/1.1.0
+##run bedcoverage on target set
+command=(bedtools coverage $PBS_JOBFS/`basename $genome` -counts -sorted -a $PBS_JOBFS/`basename $targetbed` -b $PBS_JOBFS/`basename $inputbam`)
+execute_command command[@] $dataid.targetcov $outputdir/$dataid.targetcov.done 0 $PBS_JOBFS/$dataid.targetcov.txt
 
-module load poretools/0.6.0
-command=(poretools fasta $PBS_JOBFS/workspace/)
-execute_command command[@] $dataid.poretoolsfasta $outputdir/$dataid.poretoolsfasta.done 1 "$PBS_JOBFS/$dataid.fasta"
-command=(poretools fastq $PBS_JOBFS/workspace/)
-execute_command command[@] $dataid.poretoolsfastq $outputdir/$dataid.poretoolsfastq.done 1 "$PBS_JOBFS/$dataid.fastq"
-command=(poretools combine -o $outputdir/$dataid.tar.gz $PBS_JOBFS/workspace/)
-execute_command command[@] $dataid.poretoolscombine $outputdir/$dataid.poretoolscombine.done 1
-module unload poretools/0.6.0
+module unload bedtools/2.26.0
 
-###transfer required files back
-rsync -a $PBS_JOBFS/$dataid.fasta $outputdir/
-rsync -a $PBS_JOBFS/$dataid.fastq $outputdir/
+##run flagstat to get summary stats about mapping
+module load samtools/1.4
+command=(samtools flagstat $PBS_JOBFS/`basename $inputbam`)
+execute_command command[@] $dataid.flagstat $outputdir/$dataid.flagstat.done 0 $PBS_JOBFS/$dataid.flagstat.txt
+
+module unload samtools/1.4
+
+##copy results back to the network drive
+command=(rsync -a $PBS_JOBFS/*.txt $outputdir/)
+execute_command command[@] $dataid.l2n $outputdir/$dataid.l2n.done 1
