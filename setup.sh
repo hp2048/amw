@@ -42,6 +42,21 @@ mkdir -p ../software/albacore/1.1.2
 pip3 install ont_albacore-1.1.2-cp35-cp35m-manylinux1_x86_64.whl --ignore-installed --prefix ../software/albacore/1.1.2
 createmodulefile albacore 1.1.2 python3/3.5.2
 echo "prepend-path PYTHONPATH /short/nk44/software/albacore/1.1.2/lib/python3.5/site-packages" >>/short/nk44/modules/albacore/1.1.2
+module unload python3/3.5.2
 
 ##install poretools
+git clone https://github.com/arq5x/poretools
+module load python/2.7.11 python/2.7.11-matplotlib gcc/system mpi4py petsc/3.4.3 openmpi/1.6.3 hdf5/1.8.10p
+export HDF5_VERSION=1.8.10
+mkdir -p /short/nk44/software/poretools/0.6.0/lib/python2.7/site-packages
+export PYTHONPATH=/short/nk44/software/poretools/0.6.0/lib/python2.7/site-packages
+python2.7 setup.py install --prefix=/short/nk44/software/poretools/0.6.0
+python2.7 setup.py install --prefix=/short/nk44/software/poretools/0.6.0
+createmodulefile poretools 0.6.0 python/2.7.11
+echo "soft-prereq python/2.7.11-matplotlib" >>/short/nk44/modules/poretools/0.6.0
+echo "prepend-path PYTHONPATH /short/nk44/software/poretools/0.6.0/lib/python2.7/site-packages" >>/short/nk44/modules/poretools/0.6.0
+module unload python/2.7.11 python/2.7.11-matplotlib gcc/system mpi4py petsc/3.4.3 openmpi/1.6.3 hdf5/1.8.10p
+
+
+
 
