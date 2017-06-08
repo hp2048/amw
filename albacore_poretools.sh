@@ -36,29 +36,39 @@ execute_command () {
 	fi
 }
 
-##copy files to local disc
-command=(rsync -a $genome $inputbam $probebed $targetbed $PBS_JOBFS/)
-execute_command command[@] $dataid.n2l $PBS_JOBFS/$dataid.n2l.done 1
+threads=16
+inputdir_local=$PBS_JOBFS/$dataid
+outputdir_local=$PBS_JOBFS/BC_$dataid
 
-##run bedcoverage on probe set
-module load bedtools/2.26.0
+command=(rsync -a $inputfile $PBS_JOBFS/)
+execute_command command[@] $dataid.copy2local $outputdir/$dataid.copy2local.done 1
 
-command=(bedtools coverage $PBS_JOBFS/`basename $genome` -f 0.5 -counts -sorted -a $PBS_JOBFS/`basename $probebed` -b $PBS_JOBFS/`basename $inputbam`)
-execute_command command[@] $dataid.probecov $outputdir/$dataid.probecov.done 0 $PBS_JOBFS/$dataid.probecov.txt
+mkdir -p $inputdir_local
+mkdir -p $outputdir_local
+command=(tar xzf $PBS_JOBFS/`basename $inputfile` -C $inputdir_local)
+execute_command command[@] $dataid.untar $outputdir/$dataid.untar.done 1
 
-##run bedcoverage on target set
-command=(bedtools coverage $PBS_JOBFS/`basename $genome` -counts -sorted -a $PBS_JOBFS/`basename $targetbed` -b $PBS_JOBFS/`basename $inputbam`)
-execute_command command[@] $dataid.targetcov $outputdir/$dataid.targetcov.done 0 $PBS_JOBFS/$dataid.targetcov.txt
+##run albacore
+module load albacore/1.1.2
+command=(read_fast5_basecaller.py -i $inputdir_local/ -t $threads -s $outputdir_local/ -o fastq,fast5 -q 10000000000000 -n 10000000000000 -f $flowcell -k $libkit -c $configfile)
+execute_command command[@] $dataid.albacore $outputdir/$dataid.albacore.done 1
+module unload python3/3.5.2 albacore/1.1.2
 
-module unload bedtools/2.26.0
+##remove input directory
+rm -rf $inputdir_local
 
-##run flagstat to get summary stats about mapping
-module load samtools/1.4
-command=(samtools flagstat $PBS_JOBFS/`basename $inputbam`)
-execute_command command[@] $dataid.flagstat $outputdir/$dataid.flagstat.done 0 $PBS_JOBFS/$dataid.flagstat.txt
+###fastq files are $outputdir_local/workspace/*.fastq
+###fast5 files are in $outputdir_local/workspace/0
+### you can add extra commands here for additional analysis of fastq or fast5 files
+###if you can you should use $outputdir_local as the output directory for analysis results
 
-module unload samtools/1.4
+##tar results folder
+command=(tar czf $PBS_JOBFS/$dataid.bc.tar.gz -C $PBS_JOBFS/ BC_$dataid)
+execute_command command[@] $dataid.tar $outputdir/$dataid.tar.done 1
 
-##copy results back to the network drive
-command=(rsync -a $PBS_JOBFS/*.txt $outputdir/)
-execute_command command[@] $dataid.l2n $outputdir/$dataid.l2n.done 1
+
+##copy files back to the network attached storage
+command=(rsync -a $PBS_JOBFS/$dataid.bc.tar.gz $outputdir/)
+execute_command command[@] $dataid.copy2nas $outputdir/$dataid.copy2nas.done 1
+
+
