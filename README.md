@@ -1,9 +1,10 @@
 This repository along with Wiki pages contains information, scripts, discussion regarding the processing of MinION datasets using Raijin resources.
 
-Run the albacore on a tar.gz file as follows:
+The base command for running albacore on a tar.gz file is as follows:
 
 ```
-qsub -P te53 \
+qsub \
+-P te53 \
 -o $HOME/testalbacore/ \
 -v dataid=testdata,inputfile=$HOME/miniontest.tar.gz,outputdir=$HOME/testalbacore,flowcell=FLO-MIN106,libkit=SQK-LSK108,configfile=r94_450bps_linear.cfg \
 -q express \
@@ -14,6 +15,14 @@ qsub -P te53 \
 -j oe \
 -l jobfs=100GB \
 albacore_poretools.sh
+```
+
+
+For multiple tar.gz files:
+
+```
+for f in `find /path/for/fast5/tar.gz/ -name "*.tar.gz"`
+ do dataid=`echo $f | sed -r 's/\/short\/te53\/minionseq\///' | sed -r 's/\//_/g' | sed -r 's/.tar.gz//'`; qsub -v dataid=$dataid,reference=/short/te53/reference/blastn/Homo_sapiens.GRCh38.dna.primary_assembly.fa,inputfile=$f,outputdir=/short/te53/analysis/20170309 /short/te53/ncig/run_albacore_poretools_blastn.sh; break; done
 ```
 
 #### NOTES:
