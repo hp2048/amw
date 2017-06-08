@@ -16,5 +16,5 @@ qsub -P te53 \
 albacore_poretools.sh
 ```
 
-####NOTES:
+#### NOTES:
 1. Change parameters of job submission as required. i.e. Project ID, walltime, etc.
