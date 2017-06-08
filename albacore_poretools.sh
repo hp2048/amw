@@ -38,7 +38,7 @@ execute_command () {
 
 threads=16
 inputdir_local=$PBS_JOBFS/$dataid
-outputdir_local=$PBS_JOBFS/BC_$dataid
+outputdir_local=$PBS_JOBFS/results_$dataid
 
 command=(rsync -a $inputfile $PBS_JOBFS/)
 execute_command command[@] $dataid.copy2local $outputdir/$dataid.copy2local.done 1
@@ -63,12 +63,12 @@ rm -rf $inputdir_local
 ###if you can you should use $outputdir_local as the output directory for analysis results
 
 ##tar results folder
-command=(tar czf $PBS_JOBFS/$dataid.bc.tar.gz -C $PBS_JOBFS/ BC_$dataid)
+command=(tar czf $PBS_JOBFS/$dataid.results.tar.gz -C $PBS_JOBFS/ results_$dataid)
 execute_command command[@] $dataid.tar $outputdir/$dataid.tar.done 1
 
 
 ##copy files back to the network attached storage
-command=(rsync -a $PBS_JOBFS/$dataid.bc.tar.gz $outputdir/)
+command=(rsync -a $PBS_JOBFS/$dataid.results.tar.gz $outputdir/)
 execute_command command[@] $dataid.copy2nas $outputdir/$dataid.copy2nas.done 1
 
 
