@@ -13,5 +13,8 @@ qsub -P te53 \
 -N albacore \
 -j oe \
 -l jobfs=100GB \
-.sh
+albacore_poretools.sh
 ```
+
+####NOTES:
+1. Change parameters of job submission as required. i.e. Project ID, walltime, etc.
