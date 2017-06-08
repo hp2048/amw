@@ -22,7 +22,7 @@ For multiple tar.gz files:
 
 ```
 for f in `find /path/for/fast5/tar.gz/ -name "*.tar.gz"`
- do 
+do 
  dataid=`md5sum miniontest.tar.gz | cut -f1 -d ' '`
  qsub \
  -P te53 \
@@ -35,7 +35,7 @@ for f in `find /path/for/fast5/tar.gz/ -name "*.tar.gz"`
  -j oe \
  -l jobfs=100GB \
  albacore_poretools.sh
-
+done
 ```
 
 #### NOTES:
