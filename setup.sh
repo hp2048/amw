@@ -76,4 +76,14 @@ echo "soft-prereq gcc/4.9.0" >>/short/nk44/modules/ngmlr/0.2.4
 echo "soft-prereq zlib/1.2.8" >>/short/nk44/modules/ngmlr/0.2.4
 echo "soft-prereq cmake/3.6.2" >>/short/nk44/modules/ngmlr/0.2.4
 
+##install nanoplot
+cd /short/nk44/packages
+git clone https://github.com/wdecoster/NanoPlot.git
+mkdir -p /short/nk44/software/nanoplot/0.9.6/lib/python2.7/site-packages
+module load python/2.7.11 python/2.7.11-matplotlib
+cd NanoPlot
+export PYTHONPATH=/short/nk44/software/nanoplot/0.9.6/lib/python2.7/site-packages
+pip install NanoPlot --prefix /short/nk44/software/nanoplot/0.9.6
+createmodulefile nanoplot 0.9.6 python/2.7.11
+echo "prepend-path PYTHONPATH /short/nk44/software/nanoplot/0.9.6/lib/python2.7/site-packages" >>/short/nk44/modules/nanoplot/0.9.6
 
