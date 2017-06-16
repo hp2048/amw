@@ -5,8 +5,8 @@ dirsetup () {
     mkdir $newdir
     chmod -R g+s $newdir
     chmod -R g+rwx $newdir
-    setfacl -R -m g::rwx
-    setfacl -d -m g::rwx
+    setfacl -R -m g::rwx $newdir
+    setfacl -d -m g::rwx $newdir
 }
 
 createmodulefile () {
