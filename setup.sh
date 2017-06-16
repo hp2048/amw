@@ -36,12 +36,17 @@ dirsetup reference
 
 ##install albacore
 cd packages
-wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.1.2-cp35-cp35m-manylinux1_x86_64.whl
+#wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.1.2-cp35-cp35m-manylinux1_x86_64.whl
+wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.2.1-cp35-cp35m-manylinux1_x86_64.whl
 module load python3/3.5.2
-mkdir -p ../software/albacore/1.1.2
-pip3 install ont_albacore-1.1.2-cp35-cp35m-manylinux1_x86_64.whl --ignore-installed --prefix ../software/albacore/1.1.2
-createmodulefile albacore 1.1.2 python3/3.5.2
-echo "prepend-path PYTHONPATH /short/nk44/software/albacore/1.1.2/lib/python3.5/site-packages" >>/short/nk44/modules/albacore/1.1.2
+#mkdir -p ../software/albacore/1.1.2
+mkdir -p ../software/albacore/1.2.1
+#pip3 install ont_albacore-1.1.2-cp35-cp35m-manylinux1_x86_64.whl --ignore-installed --prefix ../software/albacore/1.1.2
+pip3 install ont_albacore-1.2.1-cp35-cp35m-manylinux1_x86_64.whl --ignore-installed --prefix ../software/albacore/1.2.1
+#createmodulefile albacore 1.1.2 python3/3.5.2
+createmodulefile albacore 1.2.1 python3/3.5.2
+#echo "prepend-path PYTHONPATH /short/nk44/software/albacore/1.1.2/lib/python3.5/site-packages" >>/short/nk44/modules/albacore/1.1.2
+echo "prepend-path PYTHONPATH /short/nk44/software/albacore/1.2.1/lib/python3.5/site-packages" >>/short/nk44/modules/albacore/1.2.1
 module unload python3/3.5.2
 
 ##install poretools
