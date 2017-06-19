@@ -71,6 +71,29 @@ sed '/^$/d' $outputdir_local/workspace/*.fastq > $outputdir_local/workspace/$dat
 ##convert to fasta
 sed -n '1~4s/^@/>/p;2~4p' $outputdir_local/workspace/$dataid.fastq > $outputdir_local/workspace/$dataid.fasta
 
+##calculate md5sum for output fasta and fastq
+command=(md5sum $outputdir_local/workspace/$dataid.fast*)
+execute_command command[@] $dataid.copy2nas $outputdir/$dataid.calcmd5.done 1 $outputdir/$dataid.reads.md5
+
+##keep a separate copy of the fasta and fastq for ease of use. Can be deleted as they will be contained within the .bc.tar.gz directory
+##copy fasta/q files back to the network attached storage
+command=(rsync -a $outputdir_local/workspace/$dataid.fast* $outputdir/)
+execute_command command[@] $dataid.copy2nas $outputdir/$dataid.cpreads2nas.done 1
+
+###fastq files are $outputdir_local/workspace/*.fastq
+###fast5 files are in $outputdir_local/workspace/0
+### you can add extra commands here for additional analysis of fastq or fast5 files
+###if you can you should use $outputdir_local as the output directory for analysis results
+
+##tar results folder
+command=(tar czf $PBS_JOBFS/$dataid.bc.tar.gz -C $PBS_JOBFS/ BC_$dataid)
+execute_command command[@] $dataid.tar $outputdir/$dataid.tar.done 1
+
+
+##copy files back to the network attached storage
+command=(rsync -a $PBS_JOBFS/$dataid.bc.tar.gz $outputdir/)
+execute_command command[@] $dataid.copy2nas $outputdir/$dataid.copy2nas.done 1
+
 ###fastq files are $outputdir_local/workspace/*.fastq
 ###fast5 files are in $outputdir_local/workspace/0
 ### you can add extra commands here for additional analysis of fastq or fast5 files
