@@ -36,7 +36,6 @@ execute_command () {
 	fi
 }
 
-threads=16
 inputdir_local=$PBS_JOBFS/$dataid
 outputdir_local=$PBS_JOBFS/BC_$dataid
 
@@ -62,14 +61,18 @@ module load albacore/1.2.1
 
 if [[ $libkit == "SQK-LSK308" ]]
 then
+#module load albacore/1.2.2
 command=(full_1dsq_basecaller.py -r -i $inputdir_local/ -t $threads -s $outputdir_local/ -o fastq,fast5 -q 10000000000000 -n 10000000000000 -f $flowcell -k $libkit)
 execute_command command[@] $dataid.albacore $outputdir/$dataid.albacore.done 1
+#module unload albacore/1.2.2
 else
+#module load albacore/1.2.1
 command=(read_fast5_basecaller.py -r -i $inputdir_local/ -t $threads -s $outputdir_local/ -o fastq,fast5 -q 10000000000000 -n 10000000000000 -f $flowcell -k $libkit -c $configfile)
 execute_command command[@] $dataid.albacore $outputdir/$dataid.albacore.done 1
+#module unload python3/3.5.2 albacore/1.2.1
 fi
-
 module unload python3/3.5.2 albacore/1.2.1
+
 
 ##remove input directory
 rm -rf $inputdir_local
